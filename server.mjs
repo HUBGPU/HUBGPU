@@ -20,6 +20,14 @@ const PAGES = { '/': 'index.html', '/app': 'app.html', '/docs': 'docs.html' };
 const { default: api } = await import('./server/api.mjs');
 const { bornTarget, serveIpfs } = await import('./server/launchpad.mjs');
 
+// no framing (a wallet page inside someone else's frame is a clickjacking risk), no camera/mic/location
+const SECURITY = {
+  'x-content-type-options': 'nosniff',
+  'x-frame-options': 'DENY',
+  'content-security-policy': "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+  'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+  'cross-origin-opener-policy': 'same-origin-allow-popups',   // wallet popups keep their opener
+};
 const cache = new Map();
 async function serveFile(res, file, req) {
   const s = await stat(file);
@@ -31,7 +39,7 @@ async function serveFile(res, file, req) {
     c = { mtime: s.mtimeMs, body, gz: GZ.has(ext) && body.length > 1024 ? gzipSync(body) : null };
     cache.set(file, c);
   }
-  const headers = { 'content-type': TYPES[ext] || 'application/octet-stream', 'cache-control': /\/(fonts|vendor)\//.test(file) ? 'public, max-age=604800' : 'no-cache', 'x-content-type-options': 'nosniff' };
+  const headers = { 'content-type': TYPES[ext] || 'application/octet-stream', 'cache-control': /\/(fonts|vendor)\//.test(file) ? 'public, max-age=604800' : 'no-cache', ...SECURITY };
   if (c.gz && /gzip/.test(req.headers['accept-encoding'] || '')) { headers['content-encoding'] = 'gzip'; headers.vary = 'accept-encoding'; res.writeHead(200, headers).end(c.gz); }
   else res.writeHead(200, headers).end(c.body);
 }

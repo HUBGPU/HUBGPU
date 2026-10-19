@@ -324,6 +324,7 @@ export async function launchpadApi(req, res, url, { json, body, send, ip }) {
     catch (e) { console.warn('logo:', e.message); return send(res, 502, { error: 'Could not pin the token picture. Try again.' }), true; }
   }
   if (path === '/api/rpc' && req.method === 'POST') {
+    if (limited('rpc', ip, 300)) return send(res, 429, { jsonrpc: '2.0', id: null, error: { code: -32005, message: 'rate limited' } }), true;
     const one = JSON.parse((await body(req, 2e5)).toString() || '{}');
     const list = Array.isArray(one) ? one : [one];
     if (list.length > 10 || list.some((r) => !RPC_OK.has(r?.method))) return send(res, 400, { jsonrpc: '2.0', id: list[0]?.id ?? null, error: { code: -32601, message: 'method not allowed' } }), true;

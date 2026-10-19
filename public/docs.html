@@ -37,6 +37,7 @@
     <a href="#test">Qubit Test and the board</a>
     <a href="#contracts">Contracts and addresses</a>
     <a href="#risk">Risks</a>
+    <a href="#privacy">What HubGPU keeps</a>
     <a href="#faq">FAQ</a>
   </nav>
 
@@ -135,6 +136,18 @@
     <section id="risk">
       <h2>Risks</h2>
       <p>Tokens launched here are created by their users. HubGPU does not vet, endorse or back them. Memecoin prices can go to zero; only use what you can lose. Bonding curves, Pons and Robinhood Chain are third-party systems with their own risks. Nothing on HubGPU is financial advice, and $HGPU is a utility token with no claim on revenue.</p>
+      <p>The launchpad contract has not had a third-party audit. Its source is verified on Blockscout and Sourcify, its 14 tests run against a fork of Robinhood Chain mainnet with the real Pons factory, and both are public on GitHub. It holds no funds between launches.</p>
+    </section>
+
+    <section id="privacy">
+      <h2>What HubGPU keeps</h2>
+      <ul>
+        <li><b>No accounts, no cookies, no analytics.</b> Your wallet signs in your browser; HubGPU never sees a private key or a seed phrase.</li>
+        <li><b>Launches</b> — for each token born here: its address, name, ticker, logo, birth bitstring, the GPU name your browser reported, the creator wallet and the launch transaction. All of it is public on chain already.</li>
+        <li><b>Leaderboard</b> — the name you type, your GPU's name and the test result, only when you press Submit.</li>
+        <li><b>Seal images</b> — pinned to IPFS through Pons when you launch, and cached by this server so they load fast.</li>
+        <li>Requests pass through the server to read Robinhood Chain; they are rate-limited and not stored.</li>
+      </ul>
     </section>
 
     <section id="faq">
