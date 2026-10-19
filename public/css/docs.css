@@ -1,0 +1,24 @@
+.docs-body .top { position: sticky; }
+.crumb-d { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-faint); padding-left: 1rem; border-left: 1px solid var(--hairline); }
+.docs { width: min(72rem, calc(100% - 3rem)); margin: 0 auto; display: grid; grid-template-columns: 13rem 1fr; gap: 4rem; padding: 3rem 0 6rem; }
+.toc { position: sticky; top: 6rem; align-self: start; display: flex; flex-direction: column; gap: 0.15rem; }
+.toc a { font-size: 0.9rem; color: var(--ink-soft); padding: 0.35rem 0.7rem; border-radius: 0.5rem; }
+.toc a:hover { background: var(--wash); color: var(--ink); }
+.doc { max-width: 44rem; }
+.doc h1 { font-weight: 400; font-size: 3rem; letter-spacing: -0.045em; line-height: 1.05; margin: 1rem 0; }
+.doc section { padding-top: 2.6rem; scroll-margin-top: 5rem; }
+.doc h2 { font-weight: 500; font-size: 1.5rem; letter-spacing: -0.03em; margin-bottom: 0.9rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--hairline); }
+.doc p, .doc li { color: var(--ink-soft); line-height: 1.7; font-size: 1rem; }
+.doc p { margin-bottom: 0.9rem; }
+.doc b { color: var(--ink); font-weight: 500; }
+.doc a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #0c0d1240; }
+.doc ul, .doc ol { padding-left: 1.3rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.doc .mono { font-family: var(--mono); font-size: 0.85rem; word-break: break-all; }
+.tbl { width: 100%; border-collapse: collapse; margin: 0.4rem 0 1rem; font-size: 0.92rem; }
+.tbl th { text-align: left; font-family: var(--mono); font-weight: 500; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); padding: 0.6rem 0.7rem; background: var(--wash); }
+.tbl td { padding: 0.75rem 0.7rem; border-top: 1px solid var(--hairline); color: var(--ink-soft); vertical-align: top; }
+details { border-top: 1px solid var(--hairline); padding: 0.9rem 0; }
+details:last-child { border-bottom: 1px solid var(--hairline); }
+summary { cursor: pointer; font-weight: 500; color: var(--ink); }
+details p { margin: 0.6rem 0 0; }
+@media (width <= 900px) { .docs { grid-template-columns: 1fr; gap: 1rem; } .toc { position: static; flex-direction: row; flex-wrap: wrap; } .doc h1 { font-size: 2.2rem; } .hide-s { display: none; } }

@@ -1,0 +1,1 @@
+{"name":"hubgpu","private":true,"type":"module","scripts":{"serve":"node server.mjs"},"dependencies":{"ethers":"^6.17.0"}}

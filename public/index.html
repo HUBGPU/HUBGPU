@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HubGPU — The GPU is the quantum computer</title>
+<meta name="description" content="Every GPU can simulate a quantum computer. Quantum Lab runs circuits on your own card through WebGPU; GPU pools and mining follow on Robinhood Chain.">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="HubGPU — The GPU is the quantum computer">
+<meta property="og:description" content="Launch tokens measured into existence on your own GPU. Quantum Lab on WebGPU. Robinhood Chain.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hubgpu.network/">
+<meta property="og:image" content="https://hubgpu.network/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@hubgpunetwork">
+<meta name="twitter:image" content="https://hubgpu.network/img/og.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="icon" href="/img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/img/mark.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css">
+<script type="importmap">
+{ "imports": { "three": "/vendor/three/three.module.js", "three/addons/": "/vendor/three/addons/" } }
+</script>
+<script src="/config.js"></script>
+<script src="/js/font-preview.js" defer></script>
+</head>
+<body>
+
+<header class="top" id="top">
+  <a class="logo" href="/"><img class="mark" src="/img/mark.svg" alt="" width="34" height="34"><span class="wm">hub<span>gpu</span></span></a>
+  <button class="ca-chip" type="button" id="ca" title="Copy token address"><span class="k">CA</span><span class="ca-val">Coming soon</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+  <span class="flex"></span>
+  <a class="tlink nav-docs" href="/docs">Docs</a>
+  <a class="icon-btn" id="nav-x" href="#" target="_blank" rel="noopener" aria-label="HubGPU on X" hidden><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.5L6.3 22H3.2l7.3-8.3L2.4 2h6.4l4.4 5.9L18.9 2Zm-1.1 18h1.7L8.3 3.8H6.5L17.8 20Z"/></svg></a>
+  <a class="buy-pill" id="buy" href="/app">Launch app</a>
+</header>
+
+<section class="hero" id="hero">
+  <div class="stage" id="panel"></div>
+  <div class="hero-base">
+    <div class="hb-left">
+      <p class="hb-line u" style="--d:300ms">The GPU is the quantum computer. Funded on Robinhood Chain.</p>
+      <div class="hb-actions u" style="--d:420ms">
+        <a class="pill solid" href="/app#composer"><img src="/img/mark.svg" alt="" width="22" height="22">Open Quantum Lab</a>
+        <a class="pill ghost" href="/app">Launch a token</a>
+        <a class="tlink" href="#idea">How it works <i>↗</i></a>
+        <a class="tlink" href="#roadmap">Roadmap <i>↗</i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main>
+  <section class="section" id="idea">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow reveal"><span class="dot"></span>01 / The idea</span>
+        <h2 class="h2 reveal">Quantum hardware is scarce. <span class="accent">GPUs are everywhere.</span></h2>
+        <p class="lede reveal">Before a circuit ever touches a real QPU, it is written, debugged and verified on a classical machine that stores every amplitude. That machine is a GPU. The more memory it has, the more qubits it can hold, exactly, with no noise.</p>
+      </div>
+      <div class="idea-grid">
+        <div class="idea reveal"><div class="k">2<sup>n</sup></div><h3>Amplitudes per state</h3><p>An n-qubit state is a list of 2<sup>n</sup> complex numbers. Thirty qubits is a billion of them.</p></div>
+        <div class="idea reveal"><div class="k">8 B</div><h3>Per amplitude</h3><p>At complex64 precision each amplitude takes eight bytes, so memory, not speed, sets the ceiling.</p></div>
+        <div class="idea reveal"><div class="k">+1</div><h3>Qubit per doubling</h3><p>Double the VRAM and the card holds one more qubit. Link cards and the ceiling rises again.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="lab">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow reveal"><span class="dot"></span>02 / The app · live</span>
+        <h2 class="h2 reveal">Quantum Lab runs on <span class="accent">the GPU you already have.</span></h2>
+        <p class="lede reveal">No install and no account. Open the lab and your graphics card holds the quantum state through WebGPU, right in the browser.</p>
+      </div>
+      <div class="steps lab">
+        <div class="step reveal"><div class="num">A</div><h3>Composer</h3><p>Drop gates on up to 16 qubits and watch the state update on every click: outcome odds, sampled shots, amplitudes and each qubit's Bloch sphere.</p></div>
+        <div class="step reveal"><div class="num">B</div><h3>Qubit Test</h3><p>Grows a random circuit until your GPU runs out of room and times every size. One number comes out: how many qubits your card can hold.</p></div>
+        <div class="step reveal"><div class="num">C</div><h3>Verified board</h3><p>Before a score is listed, the server sends a 14-qubit check circuit and compares your GPU's answer with an exact run of its own.</p></div>
+        <div class="step reveal"><div class="num">D</div><h3>Launchpad</h3><p>Name a token and your GPU measures a 12-qubit circuit once. The outcome becomes its seal and its birth record, and it launches on Pons from your wallet.</p></div>
+      </div>
+      <div class="stats reveal" id="stats" hidden></div>
+      <a class="cta reveal" href="/app" style="margin-top:2rem"><span class="circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>Launch Quantum Lab</a>
+    </div>
+  </section>
+
+  <section class="section" id="qubits">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow reveal"><span class="dot"></span>03 / Qubits per card</span>
+        <h2 class="h2 reveal">Support you can measure, <span class="accent">in qubits.</span></h2>
+        <p class="lede reveal">The ceiling for an exact statevector is <code>n = ⌊log<sub>2</sub>(VRAM ÷ 8 bytes)⌋</code>. Real jobs keep some memory for workspace, so treat these as upper bounds.</p>
+      </div>
+      <div class="qtable reveal" id="qtable"></div>
+      <div class="vram reveal">
+        <div class="vram-top"><span class="eyebrow"><span class="dot"></span>Try a size</span><span class="vram-out"><b id="vram-q">33</b> qubits on <b id="vram-g">80</b> GiB</span></div>
+        <input type="range" id="vram" min="1" max="1024" value="80" aria-label="VRAM in GiB">
+        <div class="vram-scale"><span>1 GiB</span><span>8 cards × 128 GiB</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="simulate">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow reveal"><span class="dot"></span>04 / Run one now</span>
+        <h2 class="h2 reveal">Your device is a small quantum computer <span class="accent">already.</span></h2>
+        <p class="lede reveal">Pick a circuit and run it. The statevector is computed on this page, in your browser, and the shots are sampled from it. Nothing is canned. For your own circuits, <a class="inline" href="/app">open the full composer ↗</a></p>
+      </div>
+      <div class="sim reveal">
+        <div class="sim-side">
+          <div class="sim-tabs" id="sim-tabs" role="tablist"></div>
+          <p class="sim-blurb" id="sim-blurb"></p>
+          <div class="sim-n" id="sim-n" hidden>
+            <label for="sim-qubits">Qubits <b id="sim-qv">12</b></label>
+            <input type="range" id="sim-qubits" min="2" max="20" value="12">
+          </div>
+          <button class="cta dark" id="sim-run" type="button"><span class="circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>Run 2,048 shots</button>
+          <dl class="sim-stats">
+            <div><dt>Qubits</dt><dd id="st-n">–</dd></div>
+            <div><dt>Gates</dt><dd id="st-g">–</dd></div>
+            <div><dt>State size</dt><dd id="st-b">–</dd></div>
+            <div><dt>Simulated in</dt><dd id="st-t">–</dd></div>
+          </dl>
+        </div>
+        <div class="sim-main">
+          <div class="sim-circuit" id="sim-circuit"></div>
+          <div class="sim-hist" id="sim-hist"><p class="sim-empty">Press run to sample the circuit.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="roadmap">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow reveal"><span class="dot"></span>05 / Roadmap</span>
+        <h2 class="h2 reveal">From one GPU in a browser <span class="accent">to a network of them.</span></h2>
+      </div>
+      <div class="road">
+        <div class="phase now reveal">
+          <div class="ph-top"><span class="ph-n">Phase 1</span><span class="ph-s live">Live</span></div>
+          <h3>Quantum Lab</h3>
+          <p>Every visitor's GPU becomes a quantum simulator. Build circuits, test how many qubits your card holds, climb the verified board.</p>
+          <ul><li>Launchpad: tokens measured into existence, launched on Pons</li><li>$HGPU holders: rare 16-qubit seals and the Featured row</li><li>Circuit composer on WebGPU</li><li>Qubit Test with server-checked answers</li><li>Public leaderboard by card</li></ul>
+          <a class="tlink dark" href="/app">Open the lab <i>↗</i></a>
+        </div>
+        <div class="phase reveal">
+          <div class="ph-top"><span class="ph-n">Phase 2</span><span class="ph-s">Next</span></div>
+          <h3>Compute Pools</h3>
+          <p>A launchpad for quantum research. Maintainers open funding rounds in ETH for their repo's circuits; GPU owners run the jobs and are paid by the second.</p>
+          <ul><li>Rounds that fund in full or refund in full</li><li>Providers matched by how many qubits their card holds</li><li>Hourly rate capped on chain: <code>amount × 3600 ≤ rate × seconds</code></li><li>Burn your share for what is left in the pool</li></ul>
+        </div>
+        <div class="phase reveal">
+          <div class="ph-top"><span class="ph-n">Phase 3</span><span class="ph-s">Later</span></div>
+          <h3>Proof-of-Qubit Mining</h3>
+          <p>Idle GPUs earn by simulating. The network hands out circuits, spot-checks the answers like the Qubit Test does, and pays miners from the $HGPU creator fees.</p>
+          <ul><li>Mine from the browser, no install</li><li>Work is useful: real circuits, checked answers</li><li>Rewards from creator fees, paid on Robinhood Chain</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="band-wrap">
+    <div class="band reveal">
+      <canvas class="band-cv" id="band-cv"></canvas>
+      <div class="band-grid">
+        <div>
+          <h2>Built for <span class="accent">Robinhood Chain.</span></h2>
+          <p>The lab is live today. Phase 2 pools will hold ETH on Robinhood Chain, and every charge to a pool will be a transaction anyone can read.</p>
+        </div>
+        <div class="band-stats">
+          <div class="band-stat"><p class="val">Live</p><p class="lab">Phase 1 · Quantum Lab</p></div>
+          <div class="band-stat"><p class="val">WebGPU</p><p class="lab">Runs on your card</p></div>
+          <div class="band-stat"><p class="val">8 B</p><p class="lab">Per amplitude, complex64</p></div>
+          <div class="band-stat"><p class="val" id="band-ticker">$HGPU</p><p class="lab">Network token</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="closing">
+    <h2 class="reveal">Your GPU is already <span class="accent">a quantum computer.</span></h2>
+    <p class="reveal">Open the lab, find out how many qubits it holds, and put your card on the board.</p>
+    <a class="cta reveal" href="/app"><span class="circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>Launch Quantum Lab</a>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="brand">
+      <div class="logo"><img class="mark" src="/img/mark.svg" alt="" width="34" height="34"><span class="wm">hub<span>gpu</span></span></div>
+      <p>The GPU is the quantum computer. Run circuits on your own card today; community-funded GPU pools next, on Robinhood Chain.</p>
+    </div>
+    <div class="cols">
+      <div class="col"><h4>Product</h4><a href="/app">Launchpad</a><a href="/docs">Docs</a><a href="/app#composer">Quantum Lab</a><a href="/app#test">Qubit Test</a><a href="/app#board">Leaderboard</a><a href="#roadmap">Roadmap</a></div>
+      <div class="col" id="foot-social"><h4>Connect</h4></div>
+      <div class="col"><h4 id="foot-ticker">$HGPU</h4><button class="ca-copy" type="button" id="foot-ca">CA coming soon</button></div>
+    </div>
+  </div>
+  <div class="footer-base"><span>© 2026 HubGPU · Tokens launched here are made by their users. Not financial advice.</span><span>Built on Robinhood Chain</span></div>
+</footer>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

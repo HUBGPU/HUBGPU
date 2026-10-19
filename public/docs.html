@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs — HubGPU</title>
+<meta name="description" content="How HubGPU works: tokens measured into existence on your GPU, the launchpad contract, fees, $HGPU, the Quantum Lab and how scores are checked.">
+<link rel="icon" href="/img/mark.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<meta property="og:title" content="HubGPU Docs">
+<meta property="og:image" content="https://hubgpu.network/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="/fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css">
+<link rel="stylesheet" href="/css/docs.css">
+<script src="/config.js"></script>
+<script src="/js/font-preview.js" defer></script>
+</head>
+<body class="docs-body">
+<header class="top light">
+  <a class="logo" href="/"><img class="mark" src="/img/mark.svg" alt="" width="34" height="34"><span class="wm">hub<span>gpu</span></span></a>
+  <span class="crumb-d">Docs</span>
+  <span class="flex"></span>
+  <a class="tlink nav-docs hide-s" href="/">Home</a>
+  <a class="buy-pill" href="/app">Launch app</a>
+</header>
+
+<div class="docs">
+  <nav class="toc" aria-label="Contents">
+    <a href="#what">What HubGPU is</a>
+    <a href="#birth">How a token is born</a>
+    <a href="#launch">Launching</a>
+    <a href="#fees">Fees</a>
+    <a href="#hgpu">$HGPU</a>
+    <a href="#trade">Trading and creator fees</a>
+    <a href="#lab">Quantum Lab</a>
+    <a href="#test">Qubit Test and the board</a>
+    <a href="#contracts">Contracts and addresses</a>
+    <a href="#risk">Risks</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+
+  <article class="doc">
+    <span class="eyebrow"><span class="dot"></span>Docs</span>
+    <h1>How HubGPU works</h1>
+    <p class="lede">Everything on HubGPU runs either on your own graphics card, in your browser, or on Robinhood Chain. This page says which is which.</p>
+
+    <section id="what">
+      <h2>What HubGPU is</h2>
+      <p>An n-qubit quantum state is a list of 2<sup>n</sup> complex amplitudes. A GPU can hold that list in memory and apply gates to it exactly, so every graphics card is already a quantum simulator. HubGPU uses that in two ways:</p>
+      <ul>
+        <li><b>Launchpad</b> — tokens on Pons (Robinhood Chain) whose seal and birth record come from one measurement your GPU makes.</li>
+        <li><b>Quantum Lab</b> — a circuit composer, a test of how many qubits your card can hold, and a leaderboard the server checks.</li>
+      </ul>
+      <p>Compute pools and Proof-of-Qubit mining are on the <a href="/#roadmap">roadmap</a> and are not live.</p>
+    </section>
+
+    <section id="birth">
+      <h2>How a token is born</h2>
+      <ol>
+        <li>You name the token and pick a ticker.</li>
+        <li>Your GPU (WebGPU) builds a random circuit of 12 qubits and 10 layers, seeded by the name, the ticker and a fresh random nonce, and computes the full statevector: 4,096 amplitudes.</li>
+        <li>The state is measured once, using your browser's cryptographic randomness. The outcome is a 12-bit string such as <code>|0110 1000 0100⟩</code>. That is the token's birth record.</li>
+        <li>The shape of the whole distribution draws the <b>seal</b>: 64 tiles, one per group of outcomes. The most likely groups are glazed black, the next grey, the rest white and raised. A ring marks where the measurement landed.</li>
+      </ol>
+      <p>Not happy with the seal? <b>Measure again</b> runs a new circuit. Nothing is sent until you launch.</p>
+      <p><b>Rare births</b> use 16 qubits (65,536 amplitudes): a 16×16 seal on a black plate. Only wallets holding enough $HGPU can launch one, and the contract enforces it.</p>
+    </section>
+
+    <section id="launch">
+      <h2>Launching</h2>
+      <p>One transaction from your own wallet launches the token on <a href="https://www.ponsfamily.com" target="_blank" rel="noopener">Pons</a> and makes your first buy, which is required. Before you sign, the page simulates the whole launch; if it would fail, nothing is sent.</p>
+      <ul>
+        <li>The seal is pinned to IPFS and becomes the token logo.</li>
+        <li><code>Born on HubGPU · |bits⟩</code> is written into the token's on-chain description.</li>
+        <li>The token's website is its own page here, <code>hubgpu.network/t/&lt;address&gt;</code>.</li>
+        <li>Creator fees and your optional creator tax are paid to your wallet.</li>
+      </ul>
+      <p>A token appears on HubGPU only after the server reads the launch back from the chain and checks it.</p>
+    </section>
+
+    <section id="fees">
+      <h2>Fees</h2>
+      <table class="tbl">
+        <tr><th>What</th><th>How much</th><th>Who gets it</th></tr>
+        <tr><td>Pons launch fee</td><td class="mono" id="d-ponsfee">read live</td><td>Pons</td></tr>
+        <tr><td>HubGPU launch fee</td><td class="mono" id="d-hubfee">–</td><td>HubGPU treasury</td></tr>
+        <tr><td>Your first buy</td><td class="mono">from 0.0001 ETH</td><td>the bonding curve, tokens to you</td></tr>
+        <tr><td>Every trade</td><td class="mono">1%</td><td>Pons; 70% of it goes to the token's creator</td></tr>
+        <tr><td>Creator tax (optional)</td><td class="mono">0–10%</td><td>the token's creator</td></tr>
+      </table>
+      <p id="d-feenote">The HubGPU launch fee is free for wallets holding enough $HGPU, and the contract can never charge more than 0.01 ETH.</p>
+    </section>
+
+    <section id="hgpu">
+      <h2>$HGPU</h2>
+      <p>$HGPU is HubGPU's token. Holding it unlocks features; it is not a share of revenue. Balances are read from the chain at the moment they matter.</p>
+      <table class="tbl">
+        <tr><th>Hold</th><th>You get</th></tr>
+        <tr><td class="mono" id="d-rare">–</td><td>No HubGPU launch fee, and 16-qubit rare births</td></tr>
+        <tr><td class="mono" id="d-feat">–</td><td>Your tokens in the Featured row on the launchpad</td></tr>
+      </table>
+      <p id="d-ca">Contract address: coming soon.</p>
+    </section>
+
+    <section id="trade">
+      <h2>Trading and creator fees</h2>
+      <p>Every token trades on its Pons bonding curve until about 4.2 ETH has gone in; then it graduates to a Uniswap pool and trades on Pons. Each token page has a buy and sell box (8% slippage limit), a chart drawn from the curve's own trades, and the holder list.</p>
+      <p>Creators: <a href="/app#mine">My tokens</a> lists everything your wallet launched and claims your creator fees in one go. Pons keeps them in an escrow until you claim.</p>
+    </section>
+
+    <section id="lab">
+      <h2>Quantum Lab</h2>
+      <p>The <a href="/app#composer">Composer</a> places gates (H, X, Y, Z, S, T, rotations, CNOT, CZ, Swap) on up to 16 qubits. Every edit runs the statevector on your GPU in WebGPU compute shaders, one dispatch per gate, and shows outcome probabilities, 1,024 sampled shots, the largest amplitudes and each qubit's Bloch vector. A shorter Bloch arrow means the qubit is entangled.</p>
+      <p>Browsers without WebGPU fall back to an exact float64 simulator on the CPU, and the corner of the page says so.</p>
+    </section>
+
+    <section id="test">
+      <h2>Qubit Test and the board</h2>
+      <p>The test grows a random circuit from 12 qubits up to the largest state your GPU will allocate and times every size. The ceiling is <code>n = ⌊log₂(VRAM ÷ 8 bytes)⌋</code>: an 80 GB card holds 33 qubits.</p>
+      <p>Before a result is listed, the server sends a seed for a 14-qubit check circuit. Your GPU's 16 most likely outcomes must match the server's own exact run within 0.0003. Correctness is verified; timing is measured in your browser and is labelled so.</p>
+    </section>
+
+    <section id="contracts">
+      <h2>Contracts and addresses</h2>
+      <table class="tbl">
+        <tr><th>Contract</th><th>Address</th></tr>
+        <tr><td>HubGPULaunchpad</td><td class="mono" id="d-lp">not deployed yet</td></tr>
+        <tr><td>$HGPU</td><td class="mono" id="d-ca2">coming soon</td></tr>
+        <tr><td>Pons factory</td><td class="mono"><a href="https://robinhoodchain.blockscout.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e" target="_blank" rel="noopener">0x7eD5…EC7e</a></td></tr>
+      </table>
+      <p>The launchpad keeps no funds. The owner can change the launch fee (never above 0.01 ETH), the treasury, the minimum first buy, the $HGPU holder terms and the fee-exempt list, and can pause new launches. No function can move a creator's ETH, tokens or creator fees. The source and its tests are public<span id="d-gh"></span>.</p>
+    </section>
+
+    <section id="risk">
+      <h2>Risks</h2>
+      <p>Tokens launched here are created by their users. HubGPU does not vet, endorse or back them. Memecoin prices can go to zero; only use what you can lose. Bonding curves, Pons and Robinhood Chain are third-party systems with their own risks. Nothing on HubGPU is financial advice, and $HGPU is a utility token with no claim on revenue.</p>
+    </section>
+
+    <section id="faq">
+      <h2>FAQ</h2>
+      <details><summary>Is this a real quantum computer?</summary><p>No. It is an exact classical simulation of one, on your GPU. For the sizes here (12 to 16 qubits for births, up to about 30 in the Qubit Test) a simulation gives the same answers a perfect quantum computer would, with no noise.</p></details>
+      <details><summary>Can I choose my bitstring?</summary><p>No. You can measure as many times as you like before launching, but each outcome comes from a fresh circuit and the browser's cryptographic randomness.</p></details>
+      <details><summary>Which wallets work?</summary><p>Any EVM browser wallet (MetaMask, Rabby, Coinbase Wallet). The page switches it to Robinhood Chain.</p></details>
+      <details><summary>Why does the lab say CPU mode?</summary><p>Your browser has no WebGPU. Recent Chrome, Edge and Safari have it on most computers.</p></details>
+      <details><summary>Where do my creator fees go?</summary><p>To the wallet that launched the token. Claim them under My tokens.</p></details>
+    </section>
+  </article>
+</div>
+
+<footer class="footer">
+  <div class="footer-base"><span>© 2026 HubGPU · Not financial advice</span><span><a href="/">Home</a> · <a href="/app">App</a></span></div>
+</footer>
+
+<script type="module">
+  const CFG = window.HUBGPU_CONFIG;
+  const $ = (s) => document.querySelector(s);
+  const ex = (a) => `<a href="${CFG.chain.explorer}/address/${a}" target="_blank" rel="noopener">${a}</a>`;
+  $("#d-rare").textContent = `${CFG.holder.rare.toLocaleString()} $HGPU`;
+  $("#d-feat").textContent = `${CFG.holder.featured.toLocaleString()} $HGPU`;
+  if (CFG.ca) { $("#d-ca").innerHTML = `Contract address: <span class="mono">${ex(CFG.ca)}</span>`; $("#d-ca2").innerHTML = ex(CFG.ca); }
+  if (CFG.launchpad?.address) $("#d-lp").innerHTML = ex(CFG.launchpad.address);
+  if (CFG.github) $("#d-gh").innerHTML = ` on <a href="${CFG.github}" target="_blank" rel="noopener">GitHub</a>`;
+  fetch("/api/terms").then((r) => r.json()).then((t) => { $("#d-ponsfee").textContent = `${Number(t.launchFeeWei) / 1e18} ETH`; }).catch(() => {});
+  if (CFG.launchpad?.address) {
+    import("/js/app/chain.js").then(async ({ hubTerms }) => { const h = await hubTerms(); $("#d-hubfee").textContent = `${h.fee} ETH, free for holders`; }).catch(() => {});
+  } else {
+    $("#d-hubfee").textContent = "none yet";
+    $("#d-feenote").textContent = "Launches carry no HubGPU fee today. When the HubGPU launchpad contract goes live it charges 0.001 ETH per launch, free for wallets holding enough $HGPU, and can never charge more than 0.01 ETH.";
+  }
+</script>
+</body>
+</html>

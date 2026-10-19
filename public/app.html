@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quantum Lab — HubGPU</title>
+<meta name="description" content="Build quantum circuits and run them on your own GPU. Find out how many qubits your card can hold.">
+<link rel="icon" href="/img/mark.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<meta property="og:title" content="HubGPU — Launchpad and Quantum Lab">
+<meta property="og:description" content="Name a token and your GPU measures it into existence, then launch it on Pons.">
+<meta property="og:image" content="https://hubgpu.network/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="/fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/app.css">
+<script src="/config.js"></script>
+<script src="/js/font-preview.js" defer></script>
+</head>
+<body>
+
+<header class="bar">
+  <a class="logo" href="/"><img src="/img/mark.svg" alt="" width="30" height="30"><span class="wm">hub<span>gpu</span></span></a>
+  <span class="crumb">Quantum Lab</span>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-view="launchpad" aria-selected="true">Launchpad</button>
+    <button role="tab" data-view="mine">My tokens</button>
+    <button role="tab" data-view="composer">Composer</button>
+    <button role="tab" data-view="test">Qubit Test</button>
+    <button role="tab" data-view="board">Leaderboard</button>
+  </nav>
+  <span class="flex"></span>
+  <div class="device" id="device"><i></i><span id="device-label">Looking for a GPU…</span></div>
+  <button type="button" class="wbtn" id="wbtn">Connect wallet</button>
+  <a class="back" href="/">Site <span>↗</span></a>
+</header>
+
+<!-- ── Composer ─────────────────────────────────────────── -->
+<main class="view" id="view-launchpad">
+  <section class="card create" id="create">
+    <div class="create-head">
+      <div>
+        <span class="tl">Launch a token · <span id="forge-dev">–</span></span>
+        <h1 class="forge-h">Your GPU measures it into existence.</h1>
+        <p class="forge-p">Four steps, about a minute. Your graphics card runs a quantum circuit, measures it once, and that outcome becomes the token's seal and birth record on Pons.</p>
+      </div>
+      <ol class="stepper" id="stepper">
+        <li data-s="1"><b>1</b><span>Name</span></li>
+        <li data-s="2"><b>2</b><span>Measure</span></li>
+        <li data-s="3"><b>3</b><span>Details</span></li>
+        <li data-s="4"><b>4</b><span>Launch</span></li>
+      </ol>
+    </div>
+
+    <div class="create-body">
+      <div class="wiz">
+        <!-- 1 · name -->
+        <section class="step" data-step="1">
+          <h2 class="step-h">Name your token</h2>
+          <label class="fld"><span>Name <em id="c-name">0/32</em></span><input id="f-name" maxlength="32" placeholder="Schrödinger's Cat" autocomplete="off"></label>
+          <label class="fld"><span>Ticker <em id="c-sym">0/10</em></span><div class="tick-row"><b>$</b><input id="f-sym" maxlength="10" placeholder="SCAT" autocomplete="off"></div><small class="hint" id="h-sym">Letters and digits, up to 10. This is what people search for.</small></label>
+          <div class="holder" id="holder"></div>
+        </section>
+
+        <!-- 2 · measure -->
+        <section class="step" data-step="2" hidden>
+          <h2 class="step-h">Run the machine</h2>
+          <p class="step-p">Your GPU builds a random circuit from the name and ticker, computes every amplitude and measures it once. Not your favourite? Measure again: nothing is sent until you launch.</p>
+          <div class="birth" id="birth">
+            <div class="seal-wrap"><canvas id="seal" width="1000" height="1000"></canvas><div class="seal-scan"></div><span class="seal-empty" id="seal-empty">Your seal appears here</span></div>
+            <div class="birth-info">
+              <span class="tl">Measured</span>
+              <b class="bits" id="b-bits">–</b>
+              <dl class="bstats">
+                <div><dt>Chance of this outcome</dt><dd id="b-p">–</dd></div>
+                <div><dt>Circuit</dt><dd id="b-c">–</dd></div>
+                <div><dt>Measured on</dt><dd id="b-dev">–</dd></div>
+              </dl>
+              <button type="button" class="primary wide" id="f-measure">Run the machine</button>
+              <button type="button" class="ghost" id="f-again" hidden>Measure again</button>
+              <p class="hint">The seal is 64 tiles, one per group of outcomes: black where the state was most likely, a ring where the measurement landed.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3 · details -->
+        <section class="step" data-step="3" hidden>
+          <h2 class="step-h">Tell people about it</h2>
+          <label class="fld"><span>Description <em id="c-desc">0/600</em></span><textarea id="f-desc" rows="3" maxlength="600" placeholder="What is this token about? One or two lines is plenty."></textarea></label>
+          <div class="two">
+            <label class="fld"><span>X <em>optional</em></span><input id="f-x" placeholder="@handle or x.com/handle" autocomplete="off"><small class="hint" id="h-x"></small></label>
+            <label class="fld"><span>Telegram <em>optional</em></span><input id="f-tg" placeholder="@group or t.me/group" autocomplete="off"><small class="hint" id="h-tg"></small></label>
+          </div>
+          <div class="fld"><span>Website</span><div class="ro">Its own page on HubGPU, set for you <small>hubgpu.network/t/…</small></div></div>
+          <div class="opt"><span class="tl">Creator tax <em>extra fee on every trade, paid to you</em></span><div class="chips" id="f-tax"></div><small class="hint" id="h-tax"></small></div>
+          <div class="opt"><span class="tl">Your first buy <em>required: you buy first, at the lowest price</em></span><div class="chips" id="f-buy"></div>
+            <div class="trow buy-own"><input id="f-buy-own" inputmode="decimal" placeholder="or type an amount"><span>ETH</span></div>
+            <small class="hint" id="h-buy"></small></div>
+        </section>
+
+        <!-- 4 · launch -->
+        <section class="step" data-step="4" hidden>
+          <h2 class="step-h">Check and launch</h2>
+          <table class="cost" id="cost"></table>
+          <div class="walletbox" id="walletbox"></div>
+          <button type="button" class="primary wide big" id="f-launch">Launch</button>
+          <p class="hint center-t">One transaction from your wallet. The page simulates it first: if it would fail, nothing is sent.</p>
+          <ol class="steps-log" id="f-log"></ol>
+        </section>
+
+        <!-- 5 · done -->
+        <section class="step done-step" data-step="5" hidden>
+          <div class="done-top"><span class="done-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><h2 class="step-h" id="d-title">Live on Pons</h2><p class="step-p" id="d-sub"></p></div></div>
+          <div class="ca-box"><span class="tl">Contract address</span><button type="button" class="mono" id="d-ca">–</button></div>
+          <div class="done-actions">
+            <a class="primary wide center" id="d-page" href="#">Open its page</a>
+            <a class="ghost center" id="d-share" href="#" target="_blank" rel="noopener">Share on X ↗</a>
+            <a class="ghost center" id="d-pons" href="#" target="_blank" rel="noopener">View on Pons ↗</a>
+            <button type="button" class="ghost" id="d-new">Launch another</button>
+          </div>
+        </section>
+
+        <div class="wiz-nav" id="wiz-nav">
+          <button type="button" class="ghost" id="w-back">Back</button>
+          <span class="flex"></span>
+          <span class="hint" id="w-why"></span>
+          <button type="button" class="primary" id="w-next">Continue</button>
+        </div>
+      </div>
+
+      <aside class="pv" aria-label="Preview">
+        <span class="tl">Preview · how it will look</span>
+        <div class="pv-card">
+          <div class="pv-seal"><canvas id="pv-seal" width="320" height="320"></canvas><span class="pv-empty" id="pv-empty">seal</span><span class="badge dark" id="pv-rare" hidden>Rare</span></div>
+          <div class="pv-name"><b id="pv-sym">$TICKER</b><span id="pv-name">Token name</span></div>
+          <p class="pv-desc" id="pv-desc">Your description shows here.</p>
+          <div class="pv-tags"><span class="pv-tag mono" id="pv-bits">|············⟩</span><span class="pv-tag" id="pv-tax">0% creator tax</span></div>
+          <div class="pv-links" id="pv-links"></div>
+        </div>
+        <ul class="pv-where">
+          <li>Listed on <b>Pons</b> and on <b>HubGPU</b> with its own page and chart</li>
+          <li>Creator fees: <b>70% of the 1% trading fee</b> goes to your wallet</li>
+          <li>Graduates to Uniswap at about <b>4.2 ETH</b> in the curve</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <div class="born-col">
+    <section class="card live"><span class="tl live-tl"><i></i>Live</span><div class="live-track" id="live"><span class="sub">Waiting for the first birth…</span></div></section>
+    <section class="card featured" id="featured" hidden>
+      <div class="card-h"><span class="tl">Featured</span><span class="sub">creators holding $HGPU</span></div>
+      <div class="grid-born" id="featured-grid"></div>
+    </section>
+    <section class="card born">
+      <div class="card-h"><span class="tl">Born on HubGPU</span>
+        <div class="born-tools"><input id="b-q" type="search" placeholder="Search name, ticker, bits or CA" autocomplete="off">
+        <div class="chips small" id="b-sort"><button type="button" data-s="new" aria-pressed="true">New</button><button type="button" data-s="mcap">Market cap</button><button type="button" data-s="progress">Progress</button></div></div>
+      </div>
+      <div class="grid-born" id="born-grid"><p class="empty">Loading…</p></div>
+    </section>
+  </div>
+</main>
+
+<main class="view" id="view-mine" hidden>
+  <div class="mine">
+    <section class="card mine-fees">
+      <div class="card-h"><span class="tl">Creator fees</span><span class="sub" id="m-who">–</span></div>
+      <div class="score"><span class="tl">Ready to claim</span><b id="m-fee">–</b><span class="unit" id="m-fee-sub">70% of the 1% Pons fee on every trade of your tokens, plus your creator tax</span></div>
+      <button type="button" class="primary wide" id="m-claim">Claim to my wallet</button>
+      <ol class="steps-log" id="m-log"></ol>
+      <div class="holder" id="m-holder"></div>
+    </section>
+    <section class="card mine-list">
+      <div class="card-h"><span class="tl">Tokens you birthed</span><span class="sub" id="m-count"></span></div>
+      <div class="grid-born" id="m-grid"><p class="empty">Connect a wallet to see the tokens you launched here.</p></div>
+    </section>
+  </div>
+</main>
+
+<main class="view" id="view-composer" hidden>
+  <div class="toolbar">
+    <div class="group">
+      <span class="tl">Qubits</span>
+      <div class="stepper"><button type="button" id="q-dec" aria-label="Fewer qubits">−</button><b id="q-n">3</b><button type="button" id="q-inc" aria-label="More qubits">+</button></div>
+    </div>
+    <div class="group">
+      <span class="tl">Start from</span>
+      <div class="chips" id="presets"></div>
+    </div>
+    <span class="flex"></span>
+    <button type="button" class="ghost" id="undo">Undo</button>
+    <button type="button" class="ghost" id="clear">Clear</button>
+  </div>
+
+  <div class="work">
+    <aside class="palette" id="palette" aria-label="Gates"></aside>
+
+    <section class="circuit-wrap">
+      <div class="circuit-head">
+        <span class="tl" id="hint">Pick a gate, then click a wire.</span>
+        <span class="run" id="run-info">–</span>
+      </div>
+      <div class="circuit" id="circuit"></div>
+    </section>
+  </div>
+
+  <div class="results">
+    <section class="card">
+      <div class="card-h"><span class="tl">Outcomes</span><span class="sub" id="shots-info">1,024 shots</span></div>
+      <div class="hist" id="hist"></div>
+    </section>
+    <section class="card">
+      <div class="card-h"><span class="tl">Each qubit on its Bloch sphere</span><span class="sub">a shorter arrow means it is entangled</span></div>
+      <div class="blochs" id="blochs"></div>
+    </section>
+    <section class="card">
+      <div class="card-h"><span class="tl">Amplitudes</span><span class="sub">largest 16</span></div>
+      <div class="amps" id="amps"></div>
+    </section>
+  </div>
+</main>
+
+<!-- ── Qubit Test ───────────────────────────────────────── -->
+<main class="view" id="view-test" hidden>
+  <div class="test-grid">
+    <section class="card test-intro">
+      <span class="tl">Qubit Test</span>
+      <h1>How many qubits can your GPU hold?</h1>
+      <p>The test grows a random circuit one size at a time, from 12 qubits up to the largest state your GPU will allocate, and times every run. First it solves a 14-qubit check circuit from a seed the server picks, and the server compares the answer with an exact run of its own before anything reaches the leaderboard.</p>
+      <div class="test-actions">
+        <button type="button" class="primary" id="test-run">Start the test</button>
+        <span class="sub" id="test-status">Takes about a minute. Keep this tab in front.</span>
+      </div>
+    </section>
+
+    <section class="card test-score">
+      <div class="score"><span class="tl">Max qubits</span><b id="s-q">–</b></div>
+      <div class="score"><span class="tl">Throughput</span><b id="s-g">–</b><span class="unit">G amplitude updates / s</span></div>
+      <div class="score"><span class="tl">Check circuit</span><b id="s-c" class="small">–</b></div>
+      <div class="score"><span class="tl">|ψ|² at the top size</span><b id="s-n" class="small">–</b></div>
+    </section>
+
+    <section class="card test-chart">
+      <div class="card-h"><span class="tl">Time per run</span><span class="sub">random circuit, 8 layers</span></div>
+      <div class="ladder" id="ladder"><p class="empty">Runs appear here as the test climbs.</p></div>
+    </section>
+
+    <section class="card test-submit" id="submit-box" hidden>
+      <div class="card-h"><span class="tl">Put it on the board</span></div>
+      <div class="submit-row">
+        <input id="s-name" maxlength="20" placeholder="Name or @handle (optional)" autocomplete="off">
+        <button type="button" class="primary" id="s-send">Submit</button>
+      </div>
+      <p class="sub" id="s-msg">Timing is measured in your browser. Correctness is checked by the server.</p>
+    </section>
+  </div>
+</main>
+
+<!-- ── Leaderboard ──────────────────────────────────────── -->
+<main class="view" id="view-board" hidden>
+  <section class="card board">
+    <div class="card-h"><span class="tl">Leaderboard</span><span class="sub">Every row passed the server's check circuit. Timing is self-measured.</span></div>
+    <div class="table" id="board"></div>
+  </section>
+</main>
+
+<script type="module" src="/js/app/main.js"></script>
+</body>
+</html>
