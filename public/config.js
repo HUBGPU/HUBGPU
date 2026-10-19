@@ -7,7 +7,7 @@ window.HUBGPU_CONFIG = {
   buyUrl: "",        // e.g. https://www.ponsfamily.com/launchpad/<CA>
   x: "https://x.com/hubgpunetwork",
   telegram: "",
-  github: "",        // e.g. https://github.com/hubgpu/hubgpu
+  github: "https://github.com/HUBGPU/HUBGPU",
 
   /* Launchpad: every token is born from a measurement on the creator's own GPU, then launched on Pons */
   launch: {
@@ -23,8 +23,8 @@ window.HUBGPU_CONFIG = {
 
   /* HubGPU launchpad contract (Robinhood Chain). Empty = launches go straight to Pons with no HubGPU fee. */
   launchpad: {
-    address: "",                      // HubGPULaunchpad, set after the owner deploys it
-    block: 0,                         // its deploy block: from here on, only launches through it are listed
+    address: "0xb6b5f0E3c1f34d99b55c8a406Ee3A21580AF2380",                      // HubGPULaunchpad, set after the owner deploys it
+    block: 92483377,                         // its deploy block: from here on, only launches through it are listed
   },
 
   /* $HGPU utility: checked on-chain against the wallet's live balance. Unlocks once `ca` is set. */

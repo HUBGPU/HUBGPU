@@ -294,3 +294,4 @@ input[type=range]::-moz-range-thumb { width: 1.3rem; height: 1.3rem; border-radi
 .nav-docs { margin-right: 0.6rem; }
 .top.light .nav-docs { color: var(--ink); }
 @media (width <= 700px) { .nav-docs { display: none; } }
+#nav-gh { margin-right: 0.4rem; }

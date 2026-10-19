@@ -18,7 +18,7 @@ const TYPES = {
 const GZ = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt']);
 const PAGES = { '/': 'index.html', '/app': 'app.html', '/docs': 'docs.html' };
 const { default: api } = await import('./server/api.mjs');
-const { bornTarget } = await import('./server/launchpad.mjs');
+const { bornTarget, serveIpfs } = await import('./server/launchpad.mjs');
 
 const cache = new Map();
 async function serveFile(res, file, req) {
@@ -58,6 +58,8 @@ http.createServer(async (req, res) => {
     res.writeHead(200, { 'content-type': TYPES['.js'], 'cache-control': 'no-cache' }).end(body + `\nObject.assign(window.HUBGPU_CONFIG, { launchpad: { address: ${JSON.stringify(process.env.HUB_LAUNCHPAD)}, block: ${Number(process.env.HUB_LAUNCHPAD_BLOCK || 0)} } });\n`);
     return;
   }
+  const ipfs = clean.match(/^\/ipfs\/([A-Za-z0-9]+)$/);
+  if (ipfs) return serveIpfs(res, ipfs[1]);
   const born = clean.match(/^\/born\/([0-9a-f]{16})$/);
   if (born) { res.writeHead(302, { location: bornTarget(born[1]) }).end(); return; }
   let path = PAGES[clean] || (/^\/t\/0x[0-9a-fA-F]{40}$/.test(clean) ? 'token.html' : normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, ''));

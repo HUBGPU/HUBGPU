@@ -31,7 +31,7 @@ A token on HubGPU is born from a measurement. Four steps, about a minute:
 1. **Name** it and pick a ticker (checked against every token already born here).
 2. **Measure** — your GPU builds a 12-qubit random circuit seeded by the name, ticker and a fresh nonce, computes all 4,096 amplitudes in WebGPU and samples the state once with the browser's cryptographic randomness. The outcome, e.g. `|0110 1000 0100⟩`, is the token's birth record. The shape of the distribution draws its **seal**: 64 porcelain tiles, black where the state was most likely, a ring where the measurement landed.
 3. **Details** — description, X, Telegram, creator tax, and the required first buy (shown as tokens and % of supply).
-4. **Launch** — a full cost breakdown and a wallet check, then one transaction through [`HubGPULaunchpad`](contracts/README.md). The page simulates it first; if it would fail, nothing is sent.
+4. **Launch** — a full cost breakdown and a wallet check, then one transaction through [`HubGPULaunchpad`](contracts/README.md) ([`0xb6b5…2380`](https://robinhoodchain.blockscout.com/address/0xb6b5f0E3c1f34d99b55c8a406Ee3A21580AF2380?tab=contract), verified). The page simulates it first; if it would fail, nothing is sent.
 
 The token launches on **Pons** with the creator as fee recipient. `Born on HubGPU · |bits⟩` is written into its on-chain description, the seal is pinned to IPFS as its logo, and its website is its own page at `hubgpu.network/t/<address>`: seal, birth record, live market cap and curve, a candle chart built from the curve's own trades, holders, and a buy/sell box.
 

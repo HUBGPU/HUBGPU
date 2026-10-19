@@ -10,9 +10,9 @@ const L = CFG.launch;
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
-const ipfs = (u) => (u || "").replace(/^ipfs:\/\//, "https://ipfs.io/ipfs/");
+const ipfs = (u) => (u || "").replace(/^ipfs:\/\//, "/ipfs/");   // served and cached by our own server
 // a slow or missing IPFS gateway falls back once to a second gateway, then to a plain tile
-window.__sealErr ??= (img) => { if (!img.dataset.alt && /ipfs\.io/.test(img.src)) { img.dataset.alt = 1; img.src = img.src.replace("https://ipfs.io/ipfs/", "https://dweb.link/ipfs/"); } else img.classList.add("noimg"); };
+window.__sealErr ??= (img) => { if (!img.dataset.alt && /\/ipfs\//.test(img.src)) { img.dataset.alt = 1; img.src = img.src.replace(/^.*\/ipfs\//, "https://gateway.pinata.cloud/ipfs/"); } else img.classList.add("noimg"); };
 const usd = (v) => (v >= 1e6 ? `$${(v / 1e6).toFixed(2)}M` : v >= 1e3 ? `$${(v / 1e3).toFixed(1)}K` : `$${v.toFixed(0)}`);
 const ago = (t) => { const s = (Date.now() - t) / 1000; return s < 60 ? "just now" : s < 3600 ? `${(s / 60) | 0}m ago` : s < 86400 ? `${(s / 3600) | 0}h ago` : `${(s / 86400) | 0}d ago`; };
 const pct = (p) => { const v = p * 100; return v >= 1 ? v.toFixed(2) + "%" : v > 0 ? v.toFixed(Math.min(8, 1 - Math.floor(Math.log10(v)))) + "%" : "0%"; };
@@ -257,7 +257,7 @@ async function doLaunch() {
   const step = logger(log);
   try {
     const b = st.birth;
-    const png = $("#seal").toDataURL("image/png");
+    const png = $("#seal").toDataURL("image/jpeg", 0.92);   // ~90 KB instead of ~1 MB as PNG: uploads fast on slow links
     const r = await launchToken({ name: b.name, symbol: b.symbol, description: $("#f-desc").value, twitter: $("#f-x").value, telegram: $("#f-tg").value, taxPct: st.taxPct, buyEth: st.buyEth, png, bits: b.bits, p: b.p, gpu: b.gpu }, step);
     step(`$${b.symbol} is live on Pons.`, r.hash); step.ok();
     st.done = { ...r, symbol: b.symbol, name: b.name, bits: b.bits };

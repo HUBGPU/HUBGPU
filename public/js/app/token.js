@@ -7,9 +7,9 @@ const CFG = window.HUBGPU_CONFIG;
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const short = (a) => a.slice(0, 6) + "…" + a.slice(-4);
-const ipfs = (u) => (u || "").replace(/^ipfs:\/\//, "https://ipfs.io/ipfs/");
+const ipfs = (u) => (u || "").replace(/^ipfs:\/\//, "/ipfs/");   // served and cached by our own server
 // a slow or missing IPFS gateway falls back once to a second gateway, then to a plain tile
-window.__sealErr ??= (img) => { if (!img.dataset.alt && /ipfs\.io/.test(img.src)) { img.dataset.alt = 1; img.src = img.src.replace("https://ipfs.io/ipfs/", "https://dweb.link/ipfs/"); } else img.classList.add("noimg"); };
+window.__sealErr ??= (img) => { if (!img.dataset.alt && /\/ipfs\//.test(img.src)) { img.dataset.alt = 1; img.src = img.src.replace(/^.*\/ipfs\//, "https://gateway.pinata.cloud/ipfs/"); } else img.classList.add("noimg"); };
 const usd = (v) => (v >= 1e6 ? `$${(v / 1e6).toFixed(2)}M` : v >= 1e3 ? `$${(v / 1e3).toFixed(1)}K` : v >= 1 ? `$${v.toFixed(0)}` : `$${v.toFixed(2)}`);
 const compact = (v) => (v >= 1e9 ? (v / 1e9).toFixed(2) + "B" : v >= 1e6 ? (v / 1e6).toFixed(2) + "M" : v >= 1e3 ? (v / 1e3).toFixed(1) + "K" : v.toFixed(0));
 const ago = (t) => { const s = (Date.now() - t) / 1000; return s < 60 ? "now" : s < 3600 ? `${(s / 60) | 0}m` : s < 86400 ? `${(s / 3600) | 0}h` : `${(s / 86400) | 0}d`; };

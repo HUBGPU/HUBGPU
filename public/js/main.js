@@ -66,7 +66,8 @@ if (CFG.ca) {
 const social = $("#foot-social");
 if (CFG.x) { $("#nav-x").href = CFG.x; $("#nav-x").hidden = false; social.insertAdjacentHTML("beforeend", `<a href="${CFG.x}" target="_blank" rel="noopener">X</a>`); }
 if (CFG.telegram) social.insertAdjacentHTML("beforeend", `<a href="${CFG.telegram}" target="_blank" rel="noopener">Telegram</a>`);
-if (!CFG.x && !CFG.telegram) social.insertAdjacentHTML("beforeend", `<span style="color:var(--ink-faint)">Soon</span>`);
+if (CFG.github) { $("#nav-gh").href = CFG.github; $("#nav-gh").hidden = false; social.insertAdjacentHTML("beforeend", `<a href="${CFG.github}" target="_blank" rel="noopener">GitHub</a>`); }
+if (!CFG.x && !CFG.telegram && !CFG.github) social.insertAdjacentHTML("beforeend", `<span style="color:var(--ink-faint)">Soon</span>`);
 if (CFG.buyUrl) $("#foot-ca").insertAdjacentHTML("afterend", `<a href="${CFG.buyUrl}" target="_blank" rel="noopener">Buy ${CFG.ticker}</a>`);
 
 /* qubits per card: computed from each card's memory */

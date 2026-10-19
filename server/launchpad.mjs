@@ -12,7 +12,6 @@ import { randomBytes } from 'node:crypto';
 import vm from 'node:vm';
 import { getAddress } from 'ethers';
 import * as P from './pons.js';
-import { postForm } from './net.js';
 
 const DATA = process.env.DATA_DIR || fileURLToPath(new URL('../data/', import.meta.url));
 const CFG_FILE = fileURLToPath(new URL('../public/config.js', import.meta.url));
@@ -180,18 +179,25 @@ async function candles(l, tf) {
   return { candles: out, trades: trades.slice(0, 60).map(({ key: _, ...t }) => t) };
 }
 
-/* logo pinning: the PNG the creator's GPU drew, pinned to IPFS */
-async function pinLogo(png, name, symbol) {
+/* logo pinning: the seal the creator's GPU drew, pinned to IPFS through Pons's own uploader
+   (the one ponsfamily.com/launchpad/create uses). Everything stays on Robinhood Chain and Pons. */
+const PONS_PINNER = 'https://ponsfamily.com/api/ipfs/image';
+async function pinLogo(img, name, symbol, ext = 'png') {
   if (process.env.LOGO_STUB) return 'ipfs://bafkreistubhubgpulocaltest'; // local fork tests never upload
-  const tmp = join(DATA, 'logo-' + randomBytes(5).toString('hex') + '.png');
-  await mkdir(DATA, { recursive: true });
-  await writeFile(tmp, png);
-  try {
-    const d = await postForm('https://pump.fun/api/ipfs', { name: name.slice(0, 32) || 'HubGPU', symbol: symbol.slice(0, 10) || 'HUB', description: 'Born on HubGPU', showName: 'true' }, tmp);
-    const cid = String(d?.metadata?.image || '').match(/\/ipfs\/([A-Za-z0-9]+)/)?.[1];
-    if (!cid) throw new Error('no cid');
-    return 'ipfs://' + cid;
-  } finally { unlink(tmp).catch(() => {}); }
+  const type = ext === 'jpg' ? 'image/jpeg' : 'image/png';
+  let last;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const form = new FormData();
+      form.append('image', new Blob([img], { type }), `${(symbol || 'seal').toLowerCase()}.${ext}`);
+      const r = await fetch(PONS_PINNER, { method: 'POST', body: form, headers: { Origin: 'https://ponsfamily.com', Referer: 'https://ponsfamily.com/launchpad/create' }, signal: AbortSignal.timeout(45_000) });
+      const j = await r.json().catch(() => ({}));
+      const cid = String(j.uri || '').match(/ipfs:\/\/([A-Za-z0-9]+)/)?.[1] || j.cid;
+      if (r.ok && cid) return 'ipfs://' + cid;
+      last = new Error(`Pons uploader ${r.status}`);
+    } catch (e) { last = e; }
+  }
+  throw last;
 }
 
 const RPC_OK = new Set(['eth_chainId', 'net_version', 'eth_blockNumber', 'eth_call', 'eth_estimateGas', 'eth_getBalance', 'eth_gasPrice', 'eth_maxPriorityFeePerGas', 'eth_feeHistory', 'eth_getTransactionReceipt', 'eth_getTransactionByHash', 'eth_getBlockByNumber', 'eth_getTransactionCount', 'eth_getCode']);
@@ -208,6 +214,36 @@ export const lpStats = () => ({
   mcap: LAUNCHES.v.list.reduce((s, l) => s + (MARKET.get(key(l.token))?.mcap || 0), 0),
   ethUsd,
 });
+
+/* token logos served from here: fetched from IPFS once, kept on disk, then immutable. Public gateways rate-limit
+   (ipfs.io, dweb.link and w3s.link answer 429 from both the server and many home connections), so Pinata comes first. */
+const GATEWAYS = ['https://gateway.pinata.cloud/ipfs/', 'https://ipfs.io/ipfs/', 'https://dweb.link/ipfs/', 'https://w3s.link/ipfs/'];
+const ipfsBusy = new Map();
+const sniff = (b) => (b[0] === 0xff && b[1] === 0xd8 ? 'image/jpeg' : b[1] === 0x50 && b[2] === 0x4e ? 'image/png' : b.toString('ascii', 0, 4) === 'GIF8' ? 'image/gif' : b.toString('ascii', 8, 12) === 'WEBP' ? 'image/webp' : '');
+export async function serveIpfs(res, cid) {
+  if (!/^[A-Za-z0-9]{40,100}$/.test(cid)) return res.writeHead(404).end();
+  const file = join(DATA, 'ipfs', cid);
+  let body = await readFile(file).catch(() => null);
+  if (!body) {
+    if (!ipfsBusy.has(cid)) ipfsBusy.set(cid, (async () => {
+      for (const g of GATEWAYS) {
+        try {
+          const r = await fetch(g + cid, { signal: AbortSignal.timeout(20_000), redirect: 'follow' });
+          if (!r.ok) continue;
+          const b = Buffer.from(await r.arrayBuffer());
+          if (b.length > 3e6 || !sniff(b)) continue;
+          await mkdir(join(DATA, 'ipfs'), { recursive: true });
+          await writeFile(file, b);
+          return b;
+        } catch { /* next gateway */ }
+      }
+      return null;
+    })().finally(() => setTimeout(() => ipfsBusy.delete(cid), 30_000)));
+    body = await ipfsBusy.get(cid);
+  }
+  if (!body) return res.writeHead(404, { 'cache-control': 'no-store' }).end();
+  res.writeHead(200, { 'content-type': sniff(body), 'cache-control': 'public, max-age=31536000, immutable', 'x-content-type-options': 'nosniff' }).end(body);
+}
 
 /** /born/<bid> → the token page once the launch is known (the website link written into each token) */
 export function bornTarget(bid) {
@@ -279,11 +315,12 @@ export async function launchpadApi(req, res, url, { json, body, send, ip }) {
   if (path === '/api/logo' && req.method === 'POST') {
     if (limited('logo', ip, 12)) return send(res, 429, { error: 'Too many pictures, try again in a minute' }), true;
     const b = await json(req, 2.5e6);
-    const mm = String(b.png || '').match(/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/);
+    const mm = String(b.png || '').match(/^data:image\/(png|jpeg);base64,([A-Za-z0-9+/=]+)$/);
     if (!mm) return send(res, 400, { error: 'Bad picture' }), true;
-    const png = Buffer.from(mm[1], 'base64');
-    if (png.length > 1.8e6 || png[1] !== 0x50) return send(res, 400, { error: 'Bad picture' }), true;
-    try { return send(res, 200, { logo: await pinLogo(png, String(b.name || ''), String(b.symbol || '')) }), true; }
+    const img = Buffer.from(mm[2], 'base64');
+    const isPng = img[1] === 0x50 && img[2] === 0x4e, isJpg = img[0] === 0xff && img[1] === 0xd8;
+    if (img.length > 1.8e6 || !(isPng || isJpg)) return send(res, 400, { error: 'Bad picture' }), true;
+    try { return send(res, 200, { logo: await pinLogo(img, String(b.name || ''), String(b.symbol || ''), isPng ? 'png' : 'jpg') }), true; }
     catch (e) { console.warn('logo:', e.message); return send(res, 502, { error: 'Could not pin the token picture. Try again.' }), true; }
   }
   if (path === '/api/rpc' && req.method === 'POST') {

@@ -11,7 +11,7 @@ A creator's GPU measures a quantum circuit once in the browser. The outcome, a s
 | Source | [`src/HubGPULaunchpad.sol`](src/HubGPULaunchpad.sol) |
 | Tests | [`test/HubGPULaunchpad.t.sol`](test/HubGPULaunchpad.t.sol): 14 tests against a fork of mainnet |
 | Pons factory | [`0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e`](https://robinhoodchain.blockscout.com/address/0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e) |
-| Deployed at | *set after deployment* |
+| Deployed at | [`0xb6b5f0E3c1f34d99b55c8a406Ee3A21580AF2380`](https://robinhoodchain.blockscout.com/address/0xb6b5f0E3c1f34d99b55c8a406Ee3A21580AF2380?tab=contract) · verified on [Blockscout](https://robinhoodchain.blockscout.com/address/0xb6b5f0E3c1f34d99b55c8a406Ee3A21580AF2380?tab=contract) and [Sourcify](https://repo.sourcify.dev/4663/0xb6b5f0E3c1f34d99b55c8a406Ee3A21580AF2380) (exact match) |
 
 ---
 
