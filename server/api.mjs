@@ -2,13 +2,27 @@
 // float64 run of the same circuit, keep the verified runs for the leaderboard.
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { randomInt, randomUUID } from 'node:crypto';
+import { randomInt, randomBytes, createHmac, timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { checkCircuit, cpuRun, topOutcomes, CHECK_N } from '../public/js/app/gates.js';
 import { launchpadApi, lpStats } from './launchpad.mjs';
 
 const FILE = fileURLToPath(new URL('../data/bench.jsonl', import.meta.url));
-const challenges = new Map();          // id -> { seed, at }
+// Challenges are signed, not stored: a restart or a deploy never invalidates a test that is running.
+// id = seed.issuedAt.hmac — valid for 30 minutes, usable once (used ids are kept in bench.jsonl itself).
+const SECRET_FILE = fileURLToPath(new URL('../data/challenge.key', import.meta.url));
+let SECRET = await readFile(SECRET_FILE).catch(() => null);
+if (!SECRET || SECRET.length < 32) { SECRET = randomBytes(32); await mkdir(dirname(SECRET_FILE), { recursive: true }); await writeFile(SECRET_FILE, SECRET, { mode: 0o600 }); }
+const CH_TTL = 30 * 60e3;
+const sign = (seed, at) => createHmac('sha256', SECRET).update(`${seed}.${at}`).digest('base64url').slice(0, 32);
+function openChallenge(id) {
+  const m = String(id || '').match(/^(\d{1,10})\.(\d{13})\.([A-Za-z0-9_-]{32})$/);
+  if (!m) return null;
+  const want = Buffer.from(sign(m[1], m[2])), got = Buffer.from(m[3]);
+  if (want.length !== got.length || !timingSafeEqual(want, got)) return null;
+  if (Date.now() - Number(m[2]) > CH_TTL) return null;
+  return { seed: Number(m[1]) };
+}
 const lastPost = new Map();            // ip -> time
 const TOL = 3e-4;
 
@@ -51,12 +65,10 @@ export default async function api(req, res, url) {
     console.warn('api', url.pathname, e.message);
     return json(res, e.status || 500, { error: e.status ? e.message : 'Something went wrong. Try again.' });
   }
-  for (const [id, c] of challenges) if (Date.now() - c.at > 15 * 60e3) challenges.delete(id);
 
   if (url.pathname === '/api/bench/challenge' && req.method === 'GET') {
-    if (challenges.size > 5000) return json(res, 503, { error: 'busy' });
-    const id = randomUUID(), seed = randomInt(1, 2 ** 31 - 1);
-    challenges.set(id, { seed, at: Date.now() });
+    const seed = randomInt(1, 2 ** 31 - 1), at = Date.now();
+    const id = `${seed}.${at}.${sign(seed, at)}`;
     return json(res, 200, { id, seed, n: CHECK_N });
   }
 
@@ -64,17 +76,17 @@ export default async function api(req, res, url) {
     if (Date.now() - (lastPost.get(ip) || 0) < 20e3) return json(res, 429, { error: 'One submission every 20 seconds.' });
     let b;
     try { b = await body(req); } catch { return json(res, 400, { error: 'bad body' }); }
-    const ch = challenges.get(b.id);
-    if (!ch) return json(res, 400, { error: 'Challenge expired. Run the test again.' });
-    challenges.delete(b.id);
+    const ch = openChallenge(b.id);
+    if (!ch) return json(res, 400, { error: 'This test is older than 30 minutes. Run it again, then submit.' });
+    if ((await rows()).some((r) => r.ch === b.id)) return json(res, 409, { error: 'This result is already on the board.' });
     lastPost.set(ip, Date.now());
     if (!verify(ch.seed, b.top)) return json(res, 422, { error: 'The check circuit did not match the exact answer.' });
     const maxQ = Number(b.maxQ), gaups = Number(b.gaups), bestN = Number(b.bestN);
     if (!Number.isInteger(maxQ) || maxQ < 2 || maxQ > 30 || !(gaups >= 0 && gaups < 5000) || !Number.isInteger(bestN)) return json(res, 400, { error: 'bad numbers' });
-    const clean = (s, n) => String(s || '').replace(/[^\w .,()\-·+]/g, '').trim().slice(0, n);
+    const clean = (s, n) => String(s || '').replace(/[^\w .,()\-·+@]/g, '').trim().slice(0, n);
     const row = {
       at: new Date().toISOString(), name: clean(b.name, 20), gpu: clean(b.gpu, 60) || 'Unknown GPU', desc: clean(b.desc, 80),
-      backend: b.backend === 'cpu' ? 'cpu' : 'webgpu', maxQ, bestN, gaups: Math.round(gaups * 1000) / 1000, verified: true,
+      backend: b.backend === 'cpu' ? 'cpu' : 'webgpu', maxQ, bestN, gaups: Math.round(gaups * 1000) / 1000, verified: true, ch: b.id,
     };
     await mkdir(dirname(FILE), { recursive: true });
     await appendFile(FILE, JSON.stringify(row) + '\n');
@@ -103,7 +115,7 @@ export default async function api(req, res, url) {
       if (!b || r.maxQ > b.maxQ || (r.maxQ === b.maxQ && r.gaups > b.gaups)) best.set(k, r);
     }
     const list = [...best.values()].sort((a, b) => b.maxQ - a.maxQ || b.gaups - a.gaups).slice(0, 100);
-    return json(res, 200, { rows: list });
+    return json(res, 200, { rows: list.map(({ ch, ...r }) => r) });
   }
   json(res, 404, { error: 'not found' });
 }
