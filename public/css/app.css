@@ -451,3 +451,9 @@ img.noimg { visibility: hidden; }
   .seal-wrap { max-width: 280px; }
   .done-actions { grid-template-columns: 1fr; }
 }
+
+/* phones: iOS zooms into any field under 16 px; small print stays readable */
+@media (width <= 600px) {
+  input:not([type=range]):not([type=checkbox]):not([type=radio]), textarea, select { font-size: 16px !important; }
+  .trade-box .sub { font-size: 13px; }
+}

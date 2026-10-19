@@ -1107,6 +1107,7 @@ export function mountScene(host, { reserve = () => ({ top: 0, bottom: 0 }) } = {
   new ResizeObserver(() => { fit(); draw(); }).observe(host);
   kick();
   // let a headless capture drive time
-  window.__qgpu = { pose, draw, measure };
+  // (stills and films for the X kit move the camera and parts directly)
+  window.__qgpu = { pose, draw, measure, fit, camera, LOOK, scene, rig, machine, fridge, card, floor, T, cores, blochA, blochB, hud, pointer, renderer };
   return api;
 }

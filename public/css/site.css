@@ -295,3 +295,40 @@ input[type=range]::-moz-range-thumb { width: 1.3rem; height: 1.3rem; border-radi
 .top.light .nav-docs { color: var(--ink); }
 @media (width <= 700px) { .nav-docs { display: none; } }
 #nav-gh { margin-right: 0.4rem; }
+
+/* ── CA chip: copyable placeholder, full address once live; verify row; toast (PRD finishing) ── */
+.ca-chip { cursor: pointer; }
+.ca-chip .ca-val { white-space: nowrap; }
+.footer-verify { width: min(78rem, calc(100% - 4rem)); margin: 0 auto; padding: 1.1rem 0 0.2rem; border-top: 1px solid var(--hairline); display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1.4rem; font-size: 0.82rem; color: var(--ink-soft); }
+.footer-verify .k { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); }
+.footer-verify a { border-bottom: 1px solid var(--hairline); padding: 0.35rem 0; }
+.footer-verify a:hover { color: var(--ink); border-color: var(--ink); }
+.toast { position: fixed; left: 50%; bottom: calc(1.4rem + env(safe-area-inset-bottom)); z-index: 60; transform: translate(-50%, 0.8rem); opacity: 0; pointer-events: none;
+  padding: 0.6rem 1.1rem; border-radius: 9999px; background: var(--ink); color: #fff; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em; transition: opacity 0.25s, transform 0.3s var(--ease); }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (width <= 1023px) {
+  .ca-chip .k { display: inline; }
+  /* a live address is 42 characters: it gets its own row under the logo instead of being cut */
+  .top.has-ca { flex-wrap: wrap; height: auto; padding-top: 0.7rem; padding-bottom: 0.6rem; row-gap: 0.55rem; }
+  .top.has-ca .ca-chip { order: 9; flex: 1 0 100%; height: auto; min-height: 2.1rem; padding: 0.45rem 0.7rem; }
+  .top.has-ca .ca-chip .ca-val { white-space: normal; word-break: break-all; text-align: left; }
+  .top.has-ca ~ .hero .hud-stats { top: 7rem; }
+}
+@media (width <= 560px) {
+  .top { flex-wrap: wrap; height: auto; padding: 0.7rem 1rem 0.6rem; row-gap: 0.55rem; }
+  .top .ca-chip { order: 9; flex: 1 0 100%; height: auto; min-height: 2.2rem; padding: 0.45rem 0.75rem; justify-content: flex-start; }
+  .top .ca-chip svg { margin-left: auto; }
+  .top .ca-chip .ca-val { white-space: normal; word-break: break-all; text-align: left; }
+  .icon-btn { width: 2.75rem; height: 2.75rem; }
+  .buy-pill { height: 2.75rem; padding: 0 1rem; letter-spacing: 0.1em; white-space: nowrap; }
+  .hero .hud-stats, .top.has-ca ~ .hero .hud-stats { top: 7.1rem; }
+  .footer-verify { width: calc(100% - 2rem); gap: 0.2rem 1rem; }
+  .footer-verify .k { flex: 1 0 100%; }
+}
+@media (width <= 560px) {
+  /* body copy never below 14 px on phones (the root scales down to 13 px) */
+  .hb-line, .idea p, .step p, .feature p, .sim-blurb, .sim-empty, .phase p, .phase li, .footer .brand p, .footer-verify { font-size: max(14px, 0.95rem); }
+}
+@media (width <= 600px) { input:not([type=range]):not([type=checkbox]):not([type=radio]), textarea, select { font-size: 16px !important; } }
+@media (width <= 560px) { .band-stat .lab { font-size: max(10.5px, 0.66rem); } }
+@media (width <= 560px) { .footer-base { flex-direction: column; gap: 0.4rem; } }
