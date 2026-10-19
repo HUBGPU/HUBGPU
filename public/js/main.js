@@ -48,21 +48,21 @@ const copy = async (text) => {
   t.remove();
   return ok;
 };
-const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+const toast = (msg) => {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1600);
+};
 if (CFG.ticker) { $("#foot-ticker").textContent = CFG.ticker; $("#band-ticker").textContent = CFG.ticker; }
+// the chip copies exactly what it shows: the full address once it exists, the placeholder before that
+const caText = CFG.ca || "CA in superposition";
 if (CFG.ca) {
-  // the full address on wide screens, like every other launch site of ours
-  const fit = () => { $("#ca .ca-val").textContent = innerWidth > 900 ? CFG.ca : short(CFG.ca); };
-  fit(); addEventListener("resize", fit);
-  $("#foot-ca").textContent = short(CFG.ca);
-  for (const el of [$("#ca"), $("#foot-ca")]) el.addEventListener("click", async () => {
-    if (!(await copy(CFG.ca))) return;
-    $("#ca").classList.add("copied");
-    setTimeout(() => $("#ca").classList.remove("copied"), 1400);
-  });
-} else {
-  $("#ca").style.cursor = "default";
+  $("#ca .ca-val").textContent = CFG.ca;
+  $("#foot-ca").textContent = CFG.ca;
+  $("#top").classList.add("has-ca");
 }
+for (const el of [$("#ca"), $("#foot-ca")]) el.addEventListener("click", async () => {
+  if (await copy(caText)) toast(CFG.ca ? "Contract address copied" : "Copied");
+});
 const social = $("#foot-social");
 if (CFG.x) { $("#nav-x").href = CFG.x; $("#nav-x").hidden = false; social.insertAdjacentHTML("beforeend", `<a href="${CFG.x}" target="_blank" rel="noopener">X</a>`); }
 if (CFG.telegram) social.insertAdjacentHTML("beforeend", `<a href="${CFG.telegram}" target="_blank" rel="noopener">Telegram</a>`);
