@@ -248,7 +248,8 @@ export async function fetchMeta(list) {
     l.symbol = String(r(1)?.[0] ?? '').slice(0, 16);
     l.logo = String(r(2)?.[0] ?? '').slice(0, 512);
     l.desc = String(r(3)?.[0] ?? '').slice(0, 600);
-    const s = r(4);
+    // a token with malformed socials must not sink the whole batch: its socials just stay empty
+    let s = null; try { const x = r(4); s = x && { twitter: String(x.twitter ?? ''), telegram: String(x.telegram ?? ''), website: String(x.website ?? ''), farcaster: String(x.farcaster ?? '') }; } catch { s = null; }
     l.x = s?.twitter ?? ''; l.tg = s?.telegram ?? ''; l.site = s?.website ?? ''; l.fcUrl = s?.farcaster ?? '';
   });
   return list;
