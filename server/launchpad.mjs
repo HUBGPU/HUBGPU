@@ -127,13 +127,14 @@ async function scan() {
   if (scanning) return; scanning = true;
   try {
     const found = await P.fetchNewLaunches(SCAN.v.top, SCAN.v.top ? 6 : 2);
-    if (found.length) SCAN.v.top = Math.max(SCAN.v.top, ...found.map((f) => f.block));
     const known = byToken();
     const fresh = found.filter((f) => !known.has(key(f.token)) && f.pair === P.NATIVE);
     if (fresh.length) {
       await P.fetchMeta(fresh);
       for (const f of fresh) if (TAG.test(f.desc || '')) await register({ ...f, from: '' }).catch((e) => console.warn('scan:', e.message));
     }
+    // move the mark only once this batch is read, so a failed read is retried instead of skipped
+    if (found.length) SCAN.v.top = Math.max(SCAN.v.top, ...found.map((f) => f.block));
     await SCAN.save();
   } catch (e) { console.warn('scan:', e.message); }
   finally { scanning = false; }
