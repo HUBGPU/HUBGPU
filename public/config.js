@@ -6,7 +6,7 @@ window.HUBGPU_CONFIG = {
   ca: "",
   buyUrl: "",        // e.g. https://www.ponsfamily.com/launchpad/<CA>
   x: "https://x.com/hubgpunetwork",
-  telegram: "",
+  telegram: "https://t.me/hubgpunetwork",
   github: "https://github.com/HUBGPU/HUBGPU",
 
   /* Launchpad: every token is born from a measurement on the creator's own GPU, then launched on Pons */
