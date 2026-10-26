@@ -35,17 +35,19 @@ function render(c) {
       <section class="card">
         <img class="tk-seal" src="${esc(ipfs(c.logo))}" alt="" onerror="__sealErr(this)">
         <div class="tk-name"><h1>$${esc(c.symbol)}</h1><span class="sub">${esc(c.name)}</span></div>
+        ${c.about?.desc ? `<p class="tk-desc">${esc(c.about.desc)}</p>` : ""}
         <div class="badges">${c.rare ? `<span class="badge dark">Rare · 16 qubits</span>` : ""}${c.featured ? `<span class="badge">Featured</span>` : ""}</div>
         <span class="tl">Born from</span>
         <b class="bits">|${esc(groupBits(c.bits))}⟩</b>
         <dl class="bstats">
           <div><dt>Chance of that outcome</dt><dd>${c.p ? pct(c.p) : "–"}</dd></div>
           <div><dt>Measured on</dt><dd>${esc(c.gpu || "–")}</dd></div>
+          <div><dt>Creator tax</dt><dd>${c.state && c.state.taxBps != null ? (Number(c.state.taxBps) / 100).toString() + "%" : "–"}</dd></div>
           <div><dt>Born</dt><dd>${new Date(c.t).toISOString().slice(0, 16).replace("T", " ")} UTC</dd></div>
           <div><dt>Creator</dt><dd class="mono"><a class="linkish" href="${CFG.chain.explorer}/address/${c.creator}" target="_blank" rel="noopener">${short(c.creator)}</a></dd></div>
           <div><dt>Contract</dt><dd class="mono"><button type="button" class="linkish" id="tk-ca">${short(c.token)}</button></dd></div>
         </dl>
-        <div class="links"><a href="${pons}" target="_blank" rel="noopener">Pons ↗</a><a href="${CFG.chain.explorer}/token/${c.token}" target="_blank" rel="noopener">Blockscout ↗</a><a href="https://dexscreener.com/robinhood/${c.token}" target="_blank" rel="noopener">DexScreener ↗</a><a href="${CFG.chain.explorer}/tx/${c.tx}" target="_blank" rel="noopener">Birth tx ↗</a></div>
+        <div class="links">${c.about?.x ? `<a href="${esc(c.about.x)}" target="_blank" rel="noopener">X ↗</a>` : ""}${c.about?.tg ? `<a href="${esc(c.about.tg)}" target="_blank" rel="noopener">Telegram ↗</a>` : ""}<a href="${pons}" target="_blank" rel="noopener">Pons ↗</a><a href="${CFG.chain.explorer}/token/${c.token}" target="_blank" rel="noopener">Blockscout ↗</a><a href="https://dexscreener.com/robinhood/${c.token}" target="_blank" rel="noopener">DexScreener ↗</a><a href="${CFG.chain.explorer}/tx/${c.tx}" target="_blank" rel="noopener">Birth tx ↗</a></div>
       </section>
     </aside>
 

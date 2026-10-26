@@ -122,6 +122,23 @@ async function register(rc, extra = {}) {
   return { l, fresh: true };
 }
 
+// the token's own words and links, read from its contract (description without the birth tag, X, Telegram), cached
+const ABOUT = new Map();
+const okUrl = (u, hosts) => { try { const x = new URL(String(u)); return x.protocol === 'https:' && hosts.includes(x.hostname.replace(/^www\./, '')) ? x.href : ''; } catch { return ''; } };
+async function aboutOf(token) {
+  const k = key(token), hit = ABOUT.get(k);
+  if (hit && Date.now() - hit.at < 600e3) return hit.v;
+  try {
+    const [meta] = await P.fetchMeta([{ token }]);
+    const v = {
+      desc: String(meta.desc || '').replace(/\s*Born on HubGPU · \|[01]+⟩\s*$/, '').trim().slice(0, 500),
+      x: okUrl(meta.x, ['x.com', 'twitter.com']), tg: okUrl(meta.tg, ['t.me', 'telegram.me']),
+    };
+    ABOUT.set(k, { at: Date.now(), v });
+    return v;
+  } catch { return hit?.v || { desc: '', x: '', tg: '' }; }
+}
+
 let scanning = false;
 async function scan() {
   if (scanning) return; scanning = true;
@@ -287,8 +304,8 @@ export async function launchpadApi(req, res, url, { json, body, send, ip }) {
       return send(res, 200, await candles(l, tf).catch(() => ({ candles: [], trades: [] }))), true;
     }
     if (m[2] === '/holders') return send(res, 200, await P.holders(l.token).catch(() => ({ count: 0, top: [] }))), true;
-    const st = await P.coinState(l.token).catch(() => null);
-    return send(res, 200, { ...row(l), state: st, ethUsd }), true;
+    const [st, about] = await Promise.all([P.coinState(l.token).catch(() => null), aboutOf(l.token)]);
+    return send(res, 200, { ...row(l), state: st, about, ethUsd }), true;
   }
   if ((m = path.match(/^\/api\/ticker\/([A-Za-z0-9]{1,16})$/))) {
     const sym = m[1].toUpperCase();

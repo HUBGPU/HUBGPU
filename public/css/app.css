@@ -285,6 +285,7 @@ input { font: inherit; color: inherit; }
 .tk-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .tk-seal { width: 100%; aspect-ratio: 1; border-radius: 14px; background: var(--panel-2); object-fit: cover; display: block; margin-bottom: 14px; }
 .tk-name { display: flex; flex-direction: column; margin-bottom: 8px; }
+.tk-desc { margin: 2px 0 12px; font-size: 13.5px; line-height: 1.5; color: var(--soft, #0c0d12a8); white-space: pre-line; overflow-wrap: anywhere; }
 .tk-name h1 { font-weight: 600; font-size: 24px; letter-spacing: -0.03em; }
 .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 .badges:empty { display: none; }
