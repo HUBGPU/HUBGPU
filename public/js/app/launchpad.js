@@ -293,9 +293,9 @@ function reset() {
 /* ── explore ────────────────────────────────────────────── */
 const card = (c) => `
   <a class="coin" href="/t/${c.token}">
-    <span class="c-img"><img src="${esc(ipfs(c.logo))}" alt="" loading="lazy" onerror="__sealErr(this)">${c.rare ? `<span class="badge dark">Rare</span>` : ""}</span>
+    <span class="c-img"><img src="${esc(ipfs(c.logo))}" alt="" loading="lazy" onerror="__sealErr(this)">${c.platform ? `<span class="badge dark">Platform</span>` : c.rare ? `<span class="badge dark">Rare</span>` : ""}</span>
     <span class="c-main"><b>$${esc(c.symbol)}</b><span>${esc(c.name)}</span></span>
-    <span class="c-bits">|${esc(groupBits(c.bits))}⟩</span>
+    <span class="c-bits">${c.platform ? "The token of HubGPU" : `|${esc(groupBits(c.bits))}⟩`}</span>
     <span class="c-row"><span>${c.mcap ? usd(c.mcap) : "–"}</span><span>${c.grad ? "graduated" : (c.progress * 100).toFixed(1) + "%"}</span></span>
     <span class="c-bar"><i style="width:${c.grad ? 100 : Math.max(1, c.progress * 100)}%"></i></span>
     <span class="c-meta">${esc(short(c.creator))} · ${ago(c.t)}</span>

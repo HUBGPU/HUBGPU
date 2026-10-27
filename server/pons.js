@@ -374,6 +374,15 @@ export async function readLaunchTx(hash) {
   };
 }
 
+/** The launch of a token made anywhere on Pons: its creation tx from the explorer, confirmed on-chain. */
+export async function launchOf(token) {
+  const a = await bs(`addresses/${token}`);
+  const hash = a.creation_transaction_hash || a.creation_tx_hash;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(hash || '')) return null;
+  const rc = await readLaunchTx(hash);
+  return rc && rc.token.toLowerCase() === token.toLowerCase() ? rc : null;
+}
+
 /** Claimable creator fees for a wallet: escrow balance + fees still sitting on its curves. */
 export async function feesFor(addr, curves) {
   const calls = [{ target: PONS.feeEscrow, iface: escrowI, fn: 'balanceOf', args: [addr] }];

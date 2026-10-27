@@ -44,8 +44,37 @@ function store(file, init) {
 }
 const LAUNCHES = store('launches.json', { list: [] });   // [{ token, curve, name, symbol, logo, bits, p, gpu, rare, bid, creator, tx, t, block }]
 const SCAN = store('scan.json', { top: 0 });
-await Promise.all([LAUNCHES.load(), SCAN.load()]);
+const PLATFORM = store('platform.json', { l: null });   // $HGPU itself, once config.ca is set
+await Promise.all([LAUNCHES.load(), SCAN.load(), PLATFORM.load()]);
 const byToken = () => new Map(LAUNCHES.v.list.map((l) => [key(l.token), l]));
+
+/* $HGPU is launched on Pons through PONSLAUNCHER, not born from a measurement: it is listed first as the platform
+   token, with no birth record, and never counted among the tokens born here */
+let platformTry = 0;
+async function platform() {
+  const c = await config();
+  if (!isAddr(c.ca) || byToken().has(key(c.ca))) return null;
+  const have = PLATFORM.v.l && key(PLATFORM.v.l.token) === key(c.ca) ? PLATFORM.v.l : null;
+  if (have && (have.tx || Date.now() - platformTry < 300e3)) return have;
+  if (!have && Date.now() - platformTry < 30e3) return null;
+  platformTry = Date.now();
+  try {
+    const l = have || await (async () => {
+      const info = await P.lookupToken(c.ca);
+      if (!info || info.pair !== P.NATIVE) return null;
+      const [meta] = await P.fetchMeta([{ token: info.token }]);
+      return { token: info.token, curve: info.curve, name: meta.name, symbol: String(meta.symbol).toUpperCase(), logo: meta.logo, bits: '', p: 0, gpu: '', rare: false, platform: true, creator: getAddress(info.feeTo), tx: '', t: Date.now(), block: 0 };
+    })();
+    if (!l) return null;
+    const at = await P.launchOf(l.token).catch(() => null);
+    if (at) Object.assign(l, { tx: at.tx, t: at.t, block: at.block });
+    PLATFORM.v.l = l;
+    await PLATFORM.save();
+    if (!have) { refreshMarket(); console.log('platform token: $' + l.symbol, l.token); }
+    return l;
+  } catch (e) { console.warn('platform:', e.message); return have; }
+}
+const listed = () => { const p = PLATFORM.v.l, c = cfg; return p && key(p.token) === key(c.ca || '') ? [...LAUNCHES.v.list, p] : LAUNCHES.v.list; };
 
 /* $HGPU balances (whole tokens) for a set of wallets; empty until the CA is set */
 async function hgpuBalances(addrs) {
@@ -64,7 +93,7 @@ const FEATURED = new Set();
 async function refreshMarket() {
   try {
     if (Date.now() - ethAt > 300e3) { ethUsd = await P.ethUsd(ethUsd); ethAt = Date.now(); }
-    const list = LAUNCHES.v.list.map((l) => MARKET.get(key(l.token)) || { token: l.token, curve: l.curve });
+    const list = listed().map((l) => MARKET.get(key(l.token)) || { token: l.token, curve: l.curve });
     if (!list.length) return;
     await P.priceCurves(list, ethUsd);
     for (const m of list) MARKET.set(key(m.token), m);
@@ -83,7 +112,7 @@ setTimeout(refreshMarket, 1500); setInterval(refreshMarket, 20e3).unref();
 const row = (l) => {
   const m = MARKET.get(key(l.token)) || {};
   return { token: l.token, curve: l.curve, name: l.name, symbol: l.symbol, logo: l.logo, bits: l.bits, p: l.p, gpu: l.gpu, rare: !!l.rare, featured: FEATURED.has(key(l.creator)),
-    creator: l.creator, tx: l.tx, t: l.t, mcap: m.mcap || 0, progress: m.progress || 0, raised: m.raised || 0, grad: !!m.grad, priceEth: m.priceEth || 0 };
+    creator: l.creator, tx: l.tx, t: l.t, platform: !!l.platform, mcap: m.mcap || 0, progress: m.progress || 0, raised: m.raised || 0, grad: !!m.grad, priceEth: m.priceEth || 0 };
 };
 
 async function register(rc, extra = {}) {
@@ -143,6 +172,7 @@ let scanning = false;
 async function scan() {
   if (scanning) return; scanning = true;
   try {
+    await platform();
     const found = await P.fetchNewLaunches(SCAN.v.top, SCAN.v.top ? 6 : 2);
     const known = byToken();
     const fresh = found.filter((f) => !known.has(key(f.token)) && f.pair === P.NATIVE);
@@ -171,7 +201,7 @@ const births = LAUNCHES.v.list.slice().sort((a, b) => b.t - a.t).slice(0, 20).ma
 let activity = [];
 async function refreshActivity() {
   try {
-    const recent = LAUNCHES.v.list.slice().sort((a, b) => b.t - a.t).slice(0, 20);
+    const recent = listed().slice().sort((a, b) => b.t - a.t).slice(0, 20);
     const rows = [];
     for (const l of recent) {
       const tr = await tradesOf(l.curve, 1).catch(() => []);
@@ -281,6 +311,8 @@ export async function launchpadApi(req, res, url, { json, body, send, ip }) {
     if (isAddr(q.get('creator'))) list = list.filter((r) => key(r.creator) === key(q.get('creator')));
     const sort = q.get('sort');
     list.sort(sort === 'mcap' ? (a, b) => b.mcap - a.mcap : sort === 'progress' ? (a, b) => b.progress - a.progress : (a, b) => b.t - a.t);
+    const pl = isAddr(q.get('creator')) ? null : await platform();
+    if (pl && (!s || pl.symbol.toLowerCase().includes(s) || pl.name.toLowerCase().includes(s) || key(pl.token) === s)) list.unshift(row(pl));
     return send(res, 200, { total: list.length, ethUsd, launches: list.slice(0, 200) }), true;
   }
   if (path === '/api/launches' && req.method === 'POST') {
@@ -297,7 +329,8 @@ export async function launchpadApi(req, res, url, { json, body, send, ip }) {
     return send(res, r.fresh ? 201 : 200, row(r.l)), true;
   }
   if ((m = path.match(/^\/api\/coin\/(0x[0-9a-fA-F]{40})(\/candles|\/holders)?$/))) {
-    const l = byToken().get(key(m[1]));
+    let l = byToken().get(key(m[1]));
+    if (!l) { const pl = await platform(); if (pl && key(pl.token) === key(m[1])) l = pl; }
     if (!l) return send(res, 404, { error: 'Not a HubGPU token' }), true;
     if (m[2] === '/candles') {
       const tf = [60, 300, 900, 3600, 14400].includes(+q.get('tf')) ? +q.get('tf') : 300;
@@ -309,7 +342,7 @@ export async function launchpadApi(req, res, url, { json, body, send, ip }) {
   }
   if ((m = path.match(/^\/api\/ticker\/([A-Za-z0-9]{1,16})$/))) {
     const sym = m[1].toUpperCase();
-    const l = LAUNCHES.v.list.find((x) => x.symbol === sym);
+    const l = LAUNCHES.v.list.find((x) => x.symbol === sym) || [await platform()].find((x) => x?.symbol === sym);
     return send(res, 200, { symbol: sym, taken: !!l, token: l?.token || '' }), true;
   }
   if (path === '/api/activity') return send(res, 200, { ethUsd, items: activity.length ? activity : births.slice(0, 20) }), true;
