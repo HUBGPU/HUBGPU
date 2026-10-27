@@ -14,8 +14,9 @@ const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.mp4': 'video/mp4',
+  '.xml': 'application/xml; charset=utf-8',
 };
-const GZ = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt']);
+const GZ = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt', '.xml']);
 const PAGES = { '/': 'index.html', '/app': 'app.html', '/docs': 'docs.html' };
 const { default: api } = await import('./server/api.mjs');
 const { bornTarget, serveIpfs } = await import('./server/launchpad.mjs');
