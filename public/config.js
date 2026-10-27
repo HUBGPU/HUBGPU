@@ -3,8 +3,8 @@ window.HUBGPU_CONFIG = {
   name: "HubGPU",
   ticker: "$HGPU",
   domain: "hubgpu.network",
-  ca: "",
-  buyUrl: "",        // e.g. https://www.ponsfamily.com/launchpad/<CA>
+  ca: "0x6422BC8CBcB6607A4a8379fDe094ca95F2411a21",
+  buyUrl: "https://www.ponsfamily.com/launchpad/0x6422BC8CBcB6607A4a8379fDe094ca95F2411a21",        // e.g. https://www.ponsfamily.com/launchpad/<CA>
   x: "https://x.com/hubgpunetwork",
   telegram: "https://t.me/hubgpunetwork",
   github: "https://github.com/HUBGPU/HUBGPU",
